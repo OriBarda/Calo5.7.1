@@ -18,13 +18,7 @@ export function useBackgroundRefetch() {
 
       queryClient.refetchQueries({
         queryKey: queryKeys.dailyStats(today),
-        type: "active",
-        stale: true,
-      });
-
-      queryClient.refetchQueries({
-        queryKey: queryKeys.devices,
-        type: "active",
+        type: "active", 
         stale: true,
       });
     };
@@ -32,18 +26,8 @@ export function useBackgroundRefetch() {
     // Set up periodic background refresh every 5 minutes
     const intervalId = setInterval(refetchStaleData, 5 * 60 * 1000);
 
-    // Also refresh when app becomes visible
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        refetchStaleData();
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
     return () => {
       clearInterval(intervalId);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [queryClient]);
 }

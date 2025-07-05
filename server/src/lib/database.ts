@@ -9,6 +9,9 @@ const getDatabaseUrl = () => {
   const url = process.env.DATABASE_URL;
   
   if (!url) {
+    console.error("❌ DATABASE_URL environment variable is not set");
+    console.log("💡 Please set DATABASE_URL in your .env file");
+    console.log("💡 Example: DATABASE_URL=\"postgresql://user:password@localhost:5432/dbname\"");
     throw new Error("DATABASE_URL environment variable is not set");
   }
 
@@ -18,11 +21,13 @@ const getDatabaseUrl = () => {
 export const prisma =
   globalThis.__prisma ||
   new PrismaClient({
-    log:
-      process.env.NODE_ENV === "development"
-        ? ["error", "warn"]
-        : ["error"],
+    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
     errorFormat: "pretty",
+    datasources: {
+      db: {
+        url: getDatabaseUrl(),
+      },
+    },
   });
 
 if (process.env.NODE_ENV === "development") {
@@ -36,6 +41,7 @@ prisma.$connect()
   })
   .catch((error) => {
     console.error("❌ Database connection failed:", error);
+    console.log("💡 Make sure your database is running and the connection string is correct");
   });
 
 // Graceful shutdown
